@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link id="app-favicon" rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+    <title>Blueprint CRM</title>
+    <script>
+      (function() {
+        try {
+          var cache = localStorage.getItem("crm_branding_cache");
+          if (cache) {
+            var data = JSON.parse(cache);
+            if (data.companyName) {
+              document.title = data.companyName;
+            }
+            if (data.companyFavicon) {
+              var link = document.getElementById("app-favicon") || document.querySelector("link[rel='icon']") || document.querySelector("link[rel='shortcut icon']");
+              if (link) {
+                var absoluteFaviconUrl = new URL(data.companyFavicon, window.location.origin).href;
+                if (link.href !== absoluteFaviconUrl) {
+                  link.href = data.companyFavicon;
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-C4LPqoiA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CypjYph8.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
