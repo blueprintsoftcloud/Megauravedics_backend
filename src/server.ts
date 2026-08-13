@@ -160,24 +160,24 @@ app.get("*splat", (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const startServer = async () => {
+  const PORT = Number(env.PORT ?? process.env.PORT ?? 5000);
+  
+  // Bind HTTP server immediately so cloud platforms pass health check <3s
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on PORT ${PORT}`);
+  });
+
   try {
     console.log("Connecting to MongoDB...");
     await connectDB();
     console.log("MongoDB connected.");
-
     await seedDefaultPlans();
-
-    const PORT = Number(env.PORT ?? 5000);
-    server.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on PORT ${PORT}`);
-    });
   } catch (error) {
-    console.error("Critical startup error:", error);
-    process.exit(1);
+    console.error("MongoDB connection error during startup:", error);
   }
 };
 
 startServer();
 
-// Force reload: 2
+export default app;
 
