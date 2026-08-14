@@ -1,5 +1,5 @@
 {
-  "name": "blueprint-crm-api",
+  "name": "Megaura Vedics",
   "version": "2.0.0",
   "description": "Blueprint CRM E-Commerce API — TypeScript + PostgreSQL",
   "main": "dist/server.js",
