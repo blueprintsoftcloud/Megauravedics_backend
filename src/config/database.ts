@@ -15,7 +15,7 @@ export const connectDB = async (): Promise<void> => {
     logger.info(`✅ MongoDB connected to DB: ${mongoose.connection.name}`);
   } catch (err) {
     logger.error("❌ Database connection failed", err);
-    process.exit(1);
+    throw err;
   }
 };
 
