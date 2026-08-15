@@ -43,39 +43,34 @@ app.get("/health", (req, res) => {
 });
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-// Reads a comma-separated allowlist from ALLOWED_ORIGINS env var.
-// Example .env: ALLOWED_ORIGINS=https://yourapp.com,https://www.yourapp.com
-// Falls back to localhost:5173 in development.
 const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS
   .split(",")
-  .map((o) => o.trim())
+  .map((o: string) => o.trim())
   .filter(Boolean);
-
-
-//changed the cors configuration to allow the mobile devices ..............................................
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.includes(origin)) {
+
+      const isAllowed = ALLOWED_ORIGINS.some((allowed: string) => {
+        if (allowed === origin) return true;
+        // Match domain with or without www / http / https
+        const cleanAllowed = allowed.replace(/^https?:\/\/(www\.)?/, "");
+        const cleanOrigin = origin.replace(/^https?:\/\/(www\.)?/, "");
+        return cleanAllowed === cleanOrigin;
+      });
+
+      if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS: origin '${origin}' not allowed`));
+      // Pass false to disallow origin cleanly without throwing 500 error
+      return callback(null, false);
     },
     credentials: true,
   }),
 );
-
-
-// app.use(
-//   cors({
-//     origin: true,
-//     credentials: true,
-//   })
-// );
-
 
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err);
@@ -101,8 +96,6 @@ app.use("/api", generalLimiter);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ── Socket.IO ─────────────────────────────────────────────────────────────────
-
-
 const io = new Server(server, {
   cors: {
     origin: ALLOWED_ORIGINS,
@@ -110,15 +103,6 @@ const io = new Server(server, {
   },
   transports: ["websocket", "polling"],
 });
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: true,
-//     credentials: true,
-//   },
-//   transports: ["websocket", "polling"],
-// });
-
 
 initSocket(io);
 app.set("socketio", io);
@@ -144,11 +128,6 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/home-banners", homeBannerRoutes);
 app.use("/api/billing", billingRoutes);
 
-
-// ── Error Handler ─────────────────────────────────────────────────────────────
-app.use(errorHandler);
-
-
 // ── Serve React Frontend ───────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "../client")));
 
@@ -157,6 +136,9 @@ app.use(express.static(path.join(__dirname, "../client")));
 app.get("*splat", (req, res) => {
   res.sendFile(path.join(__dirname, "../client", "index.html"));
 });
+
+// ── Error Handler (MUST BE MOUNTED LAST) ──────────────────────────────────
+app.use(errorHandler);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const startServer = async () => {
