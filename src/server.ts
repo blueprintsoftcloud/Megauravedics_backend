@@ -38,15 +38,6 @@ import billingRoutes from "./routes/billing.routes";
 const app = express();
 const server = http.createServer(app);
 
-// ── Canonical Domain Redirect (megauravedics.com -> www.megauravedics.com) ──
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const host = req.headers.host;
-  if (host === "megauravedics.com") {
-    return res.redirect(301, `https://www.megauravedics.com${req.url}`);
-  }
-  next();
-});
-
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
