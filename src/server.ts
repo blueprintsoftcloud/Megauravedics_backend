@@ -42,6 +42,15 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// ── Apex Domain Redirect (megauravedics.com -> www.megauravedics.com) ──────
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  if (host === "megauravedics.com" || host === "http://megauravedics.com") {
+    return res.redirect(301, `https://www.megauravedics.com${req.url}`);
+  }
+  next();
+});
+
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS
   .split(",")
